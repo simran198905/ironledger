@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IronLedger | Blockchain-Anchored ICS Digital Forensics & Attribution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Top Navigation Header -->
+    <header class="top-nav">
+        <div class="brand-container">
+            <div class="brand-logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round" class="logo-svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+                <div class="brand-pulse"></div>
+            </div>
+            <div>
+                <h1 class="brand-title">IRON<span>LEDGER</span></h1>
+                <p class="brand-sub">ICS/SCADA Digital Forensics & Blockchain Evidence Framework</p>
+            </div>
+        </div>
+
+        <div class="header-badges">
+            <div class="network-badge">
+                <span class="pulse-dot"></span>
+                <span>Ethereum Sepolia Testnet</span>
+            </div>
+            <div id="db-status-badge" class="db-status-badge offline" title="Supabase database connection status">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+                <span id="db-status-text">DB: Checking…</span>
+            </div>
+            <a id="contract-pill" href="https://sepolia.etherscan.io/address/0x4860987466820adE28DBd91e0e5527C28A448e8b"
+                target="_blank" class="contract-pill" title="View Smart Contract on Sepolia Etherscan">
+                <span class="label">Contract:</span>
+                <span class="addr" id="contract-pill-addr">0x4860...48e8</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+            </a>
+            <button id="metamask-btn" class="metamask-connect-btn" onclick="toggleMetaMask()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M21.9 8.2l-3.3-6.1c-.2-.4-.8-.4-1 0L14.3 8.2c-.3.5.1 1.1.6 1.1h6.4c.5 0 .9-.6.6-1.1zM9.7 2.1c-.2-.4-.8-.4-1 0L2.1 8.2c-.3.5.1 1.1.6 1.1h6.4c.5 0 .9-.6.6-1.1L9.7 2.1zM12 11.5L6.3 21.9c-.3.5.1 1.1.6 1.1h10.2c.5 0 .9-.6.6-1.1L12 11.5z" />
+                </svg>
+                <span id="wallet-text">Connect MetaMask</span>
+            </button>
+            <button class="report-cta-btn" onclick="openReportModal()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Forensic Report
+            </button>
+        </div>
+    </header>
+
+    <!-- 3-Act Demo Toolbar -->
+    <div class="demo-bar">
+        <div class="demo-bar-title">
+            <span class="demo-tag">LIVE DEMO CONTROLLER</span>
+            <span>Follow the 3-Act Incident & Forensic Walkthrough:</span>
+        </div>
+        <div class="demo-actions">
+            <button class="demo-step-btn" onclick="runDemoAct(1)">
+                <span class="num">Act 1</span>
+                <span>Normal Baseline</span>
+            </button>
+            <button class="demo-step-btn danger" onclick="runDemoAct(2)">
+                <span class="num">Act 2</span>
+                <span>Attack Injection (Triton / HatMan)</span>
+            </button>
+            <button class="demo-step-btn warning" onclick="runDemoAct(3)">
+                <span class="num">Act 3</span>
+                <span>Log Tamper & Blockchain Proof</span>
+            </button>
+            <button class="demo-step-btn recon" onclick="runForensicReconstruction()">
+                <span class="num">Act 4</span>
+                <span>Reconstruct Timeline & Attribution</span>
+            </button>
+            <button class="demo-step-btn reset" onclick="resetToNominal()">
+                <span>Reset Plant</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MetaMask anchoring status -->
+    <div id="wallet-banner" class="wallet-banner hidden"></div>
+
+    <!-- Main Grid Workspace -->
+    <main class="dashboard-grid">
+        <!-- LEFT COLUMN: ICS Physical Plant & SCADA Synoptic -->
+        <section class="panel plant-synoptic-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    <span>SCADA Plant Synoptic & Physical Topology</span>
+                </div>
+                <div id="plant-status-badge" class="status-badge nominal">NOMINAL OPERATION</div>
+            </div>
+
+            <!-- Animated SCADA Synoptic SVG -->
+            <div class="synoptic-viewport">
+                <svg id="scada-svg" viewBox="0 0 760 360" class="scada-schematic">
+                    <defs>
+                        <linearGradient id="pipeFluid" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0284c7" stop-opacity="0.8" />
+                            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.9" />
+                        </linearGradient>
+                        <linearGradient id="vesselGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#1e293b" />
+                            <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+                        <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="4" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+
+                    <!-- Background grid lines -->
+                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+                    </pattern>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+
+                    <!-- Piping Network -->
+                    <!-- Inlet Pipe -->
+                    <path d="M 20 180 L 140 180 L 140 150 L 220 150" class="pipe-base" />
+                    <path d="M 20 180 L 140 180 L 140 150 L 220 150" class="pipe-flow" id="flow-inlet" />
+
+                    <!-- Pump to Vessel Pipe -->
+                    <path d="M 290 150 L 410 150 L 410 190 L 460 190" class="pipe-base" />
+                    <path d="M 290 150 L 410 150 L 410 190 L 460 190" class="pipe-flow" id="flow-mid" />
+
+                    <!-- Vent Relief Pipe -->
+                    <path d="M 540 110 L 540 50 L 720 50" class="pipe-base" />
+                    <path d="M 540 110 L 540 50 L 720 50" class="pipe-flow-vent" id="flow-vent" />
+
+                    <!-- Discharge Pipe -->
+                    <path d="M 620 220 L 730 220" class="pipe-base" />
+                    <path d="M 620 220 L 730 220" class="pipe-flow" id="flow-outlet" />
+
+                    <!-- Inlet Valve Symbol -->
+                    <g transform="translate(100, 160)" class="scada-valve-group" id="svg-valve-inlet">
+                        <polygon points="0,10 0,30 20,20" fill="#38bdf8" />
+                        <polygon points="40,10 40,30 20,20" fill="#38bdf8" />
+                        <line x1="20" y1="20" x2="20" y2="5" stroke="#94a3b8" stroke-width="2" />
+                        <circle cx="20" cy="5" r="4" fill="#0284c7" />
+                        <text x="20" y="45" text-anchor="middle" class="svg-label">INLET-01 (75%)</text>
+                    </g>
+
+                    <!-- Pump A Component -->
+                    <g transform="translate(220, 110)" class="scada-pump-group" id="svg-pump-a">
+                        <rect x="0" y="20" width="70" height="60" rx="6" fill="#1e293b" stroke="#38bdf8"
+                            stroke-width="2" />
+                        <circle cx="35" cy="50" r="22" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.5" />
+                        <!-- Rotating Impeller Blades -->
+                        <g id="pump-impeller" class="rotating-impeller">
+                            <line x1="35" y1="32" x2="35" y2="68" stroke="#38bdf8" stroke-width="3"
+                                stroke-linecap="round" />
+                            <line x1="17" y1="50" x2="53" y2="50" stroke="#38bdf8" stroke-width="3"
+                                stroke-linecap="round" />
+                            <circle cx="35" cy="50" r="5" fill="#38bdf8" />
+                        </g>
+                        <text x="35" y="95" text-anchor="middle" class="svg-label font-bold">PUMP A-01</text>
+                        <text x="35" y="110" text-anchor="middle" class="svg-sub" id="svg-pump-rpm-txt">2400 RPM</text>
+                    </g>
+
+                    <!-- Pressure Vessel R-101 -->
+                    <g transform="translate(460, 110)" class="scada-vessel-group" id="svg-vessel">
+                        <!-- Vessel Body -->
+                        <rect x="0" y="0" width="160" height="170" rx="24" fill="url(#vesselGrad)" stroke="#38bdf8"
+                            stroke-width="2.5" id="vessel-border" />
+                        <!-- Internal Fluid Fill Level -->
+                        <rect x="6" y="70" width="148" height="94" rx="18" fill="rgba(6, 182, 212, 0.25)"
+                            id="vessel-fluid" />
+
+                        <text x="80" y="30" text-anchor="middle" class="svg-label font-bold">REACTOR R-101</text>
+
+                        <!-- Real-time Pressure & Temp Labels inside Vessel -->
+                        <g transform="translate(80, 65)">
+                            <text x="0" y="0" text-anchor="middle" class="svg-metric-val" id="svg-vessel-pressure">5.4
+                                Bar</text>
+                            <text x="0" y="14" text-anchor="middle" class="svg-metric-sub">PRESSURE</text>
+                        </g>
+
+                        <g transform="translate(80, 110)">
+                            <text x="0" y="0" text-anchor="middle" class="svg-metric-val" id="svg-vessel-temp">68.5
+                                °C</text>
+                            <text x="0" y="14" text-anchor="middle" class="svg-metric-sub">CORE TEMP</text>
+                        </g>
+                    </g>
+
+                    <!-- Vent Relief Valve -->
+                    <g transform="translate(600, 30)" class="scada-valve-group" id="svg-valve-vent">
+                        <polygon points="0,10 0,30 20,20" fill="#10b981" id="vent-poly-l" />
+                        <polygon points="40,10 40,30 20,20" fill="#10b981" id="vent-poly-r" />
+                        <line x1="20" y1="20" x2="20" y2="5" stroke="#94a3b8" stroke-width="2" />
+                        <circle cx="20" cy="5" r="4" fill="#10b981" id="vent-circ" />
+                        <text x="20" y="45" text-anchor="middle" class="svg-label" id="svg-vent-label">VENT-02
+                            (15%)</text>
+                    </g>
+
+                    <!-- Triconex Safety Instrumented System (SIS) Controller -->
+                    <g transform="translate(240, 260)" class="scada-sis-group" id="svg-sis-box">
+                        <rect x="0" y="0" width="280" height="70" rx="8" fill="#111827" stroke="#334155"
+                            stroke-width="1.8" id="sis-border" />
+                        <circle cx="20" cy="24" r="7" fill="#10b981" id="sis-led" />
+                        <text x="34" y="28" class="svg-label font-bold" id="sis-title">SIS INTERLOCK (ARMED)</text>
+                        <text x="16" y="52" class="svg-sub" id="sis-sub">Auto-Trip Threshold: P&gt;9.5 Bar |
+                            T&gt;95°C</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Digital Telemetry Instrument Gauges -->
+            <div class="metrics-grid">
+                <div class="metric-card" id="card-pressure">
+                    <div class="card-header">
+                        <span class="metric-name">VESSEL PRESSURE</span>
+                        <span class="metric-threshold">Safe &lt; 8.0 Bar</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="val" id="val-pressure">5.40</span>
+                        <span class="unit">Bar</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill" id="bar-pressure" style="width: 54%;"></div>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="card-temp">
+                    <div class="card-header">
+                        <span class="metric-name">CORE TEMPERATURE</span>
+                        <span class="metric-threshold">Safe &lt; 85.0 °C</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="val" id="val-temp">68.5</span>
+                        <span class="unit">°C</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill" id="bar-temp" style="width: 57%;"></div>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="card-rpm">
+                    <div class="card-header">
+                        <span class="metric-name">PUMP SPEED</span>
+                        <span class="metric-threshold">Safe &lt; 3000 RPM</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="val" id="val-rpm">2400</span>
+                        <span class="unit">RPM</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill" id="bar-rpm" style="width: 66%;"></div>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="card-vibration">
+                    <div class="card-header">
+                        <span class="metric-name">ROTOR VIBRATION</span>
+                        <span class="metric-threshold">Safe &lt; 3.0 mm/s</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="val" id="val-vibration">1.82</span>
+                        <span class="unit">mm/s</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill" id="bar-vibration" style="width: 25%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Dual-Layer Anomaly Detection & Attack Injection -->
+        <section class="panel anomaly-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>Dual-Layer Anomaly Engine (Physics + ML)</span>
+                </div>
+                <span id="anomaly-badge" class="badge-pill normal">PASS</span>
+            </div>
+
+            <!-- Isolation Forest ML Meter -->
+            <div class="ml-score-container">
+                <div class="ml-meta">
+                    <span class="ml-label">Isolation Forest ML Drift Score:</span>
+                    <span id="ml-score-text" class="ml-val">0.12 (Normal)</span>
+                </div>
+                <div class="ml-bar-track">
+                    <div id="ml-bar-indicator" class="ml-bar-indicator" style="width: 12%;"></div>
+                </div>
+                <div class="ml-legend">
+                    <span>0.0 Nominal</span>
+                    <span>0.5 Warning Threshold</span>
+                    <span>1.0 Critical Drift</span>
+                </div>
+            </div>
+
+            <!-- Active Rule Violations Stream -->
+            <div class="violations-box" id="violations-box">
+                <div class="empty-state">No physics threshold violations detected. Process envelope is secure.</div>
+            </div>
+
+            <!-- Threat Scenario Injection Lab -->
+            <div class="attack-lab">
+                <div class="lab-title">ICS Attack Injection Scenarios:</div>
+                <div class="attack-buttons-grid">
+                    <button class="attack-btn" onclick="triggerAttack('triton')">
+                        <div class="btn-top">
+                            <span class="tag triton">TRITON / HATMAN</span>
+                            <span class="technique">T0888</span>
+                        </div>
+                        <div class="btn-desc">Bypass SIS interlock & escalate thermal runaway</div>
+                    </button>
+
+                    <button class="attack-btn" onclick="triggerAttack('overpressure')">
+                        <div class="btn-top">
+                            <span class="tag overpressure">INDUSTROYER2</span>
+                            <span class="technique">T0855</span>
+                        </div>
+                        <div class="btn-desc">Close vent relief & force pump to 100% capacity</div>
+                    </button>
+
+                    <button class="attack-btn" onclick="triggerAttack('stuxnet')">
+                        <div class="btn-top">
+                            <span class="tag stuxnet">STUXNET</span>
+                            <span class="technique">T0836</span>
+                        </div>
+                        <div class="btn-desc">Rapid centrifuge speed cycling outside safe limits</div>
+                    </button>
+
+                    <button class="attack-btn tamper" onclick="triggerAttack('log_tamper')">
+                        <div class="btn-top">
+                            <span class="tag volt">LOG TAMPERING</span>
+                            <span class="technique">T0815</span>
+                        </div>
+                        <div class="btn-desc">Adversary alters database to hide malicious actions</div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM LEFT: Blockchain Evidence Feed & Tamper Detection Studio -->
+        <section class="panel blockchain-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <span>Blockchain Evidence Layer (Ethereum Sepolia Anchor)</span>
+                </div>
+                <div class="tamper-action-group">
+                    <button class="tamper-btn" onclick="simulateDatabaseTamper()"
+                        title="Simulates an attacker modifying a stored database audit row">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                        Simulate DB Tampering
+                    </button>
+                    <button class="audit-btn" onclick="runIntegrityAudit()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Verify Chain Integrity
+                    </button>
+                    <button id="sync-contract-btn" class="sync-btn" onclick="syncWithContract()"
+                        title="Synchronize local chain state with on-chain Sepolia contract">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                        Sync with Contract
+                    </button>
+                </div>
+            </div>
+
+            <div id="tamper-banner" class="tamper-banner hidden">
+                <!-- Injected dynamically on tamper detection -->
+            </div>
+
+            <!-- Blockchain Blocks Table -->
+            <div class="blocks-table-container">
+                <table class="blocks-table">
+                    <thead>
+                        <tr>
+                            <th>Block #</th>
+                            <th>Event ID</th>
+                            <th>Timestamp</th>
+                            <th>Command</th>
+                            <th>Source</th>
+                            <th title="Ethereum tx hash for on-chain blocks (matches Etherscan); SHA-256 event digest for local blocks">Tx Hash / SHA-256 ⓘ</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blocks-tbody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- BOTTOM RIGHT: Forensic Reconstruction & MITRE ATT&CK ICS Matrix -->
+        <section class="panel forensics-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span>Forensic Reconstruction &amp; Threat Attribution</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button class="btn-reconstruct" onclick="runForensicReconstruction()">Run Backward-Walk</button>
+                    <button class="btn-save-case" onclick="openSaveCaseModal()"
+                        title="Save this reconstruction as a named forensic case in Supabase">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save Case
+                    </button>
+                </div>
+            </div>
+
+            <div class="forensics-content">
+                <!-- Attribution Hypothesis Card -->
+                <div class="attribution-card" id="attribution-card">
+                    <div class="attr-header">
+                        <span class="attr-title">MITRE ATT&CK for ICS Attribution Hypothesis</span>
+                        <span class="attr-score" id="attr-score-badge">--% Match</span>
+                    </div>
+                    <div class="attr-actor-name" id="attr-actor-name">Awaiting Incident Data...</div>
+                    <div class="attr-actor-origin" id="attr-actor-origin">Origin: --</div>
+                    <p class="attr-summary" id="attr-summary">Run an attack scenario and initiate backward-walk to
+                        correlate telemetry with known adversary signatures.</p>
+                </div>
+
+                <!-- Reconstructed Chronological Timeline -->
+                <div class="timeline-container">
+                    <div class="timeline-title">Reconstructed Event Sequence (Backward-Walk from Anomaly):</div>
+                    <div class="timeline-steps" id="timeline-steps">
+                        <div class="empty-state">No active investigation. Execute backward-walk to trace attack
+                            timeline.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ── MITRE ATT&CK for ICS Matrix ──────────────────────── -->
+    <section class="mitre-section" id="mitre-section">
+        <div class="mitre-header">
+            <div class="mitre-title-group">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                <div>
+                    <h2 class="mitre-title">MITRE ATT&amp;CK for ICS — Live Navigator Matrix</h2>
+                    <p class="mitre-subtitle">Real-time technique activation mapped from SCADA telemetry, commands &amp;
+                        anomalies. Red cells = techniques detected in current incident.</p>
+                </div>
+            </div>
+            <div class="mitre-header-actions">
+                <button class="mitre-refresh-btn" onclick="loadMitreMatrix()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Refresh Matrix
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Nav -->
+        <div class="mitre-tabs">
+            <button class="mitre-tab active" id="tab-matrix" onclick="switchMitreTab('matrix')">🛡️ ATT&amp;CK
+                Matrix</button>
+            <button class="mitre-tab" id="tab-attribution" onclick="switchMitreTab('attribution')">🎯 Attribution
+                Ranking</button>
+            <button class="mitre-tab" id="tab-techniques" onclick="switchMitreTab('techniques')">📋 Technique
+                Details</button>
+        </div>
+
+        <!-- Matrix Tab -->
+        <div id="mitre-tab-matrix" class="mitre-tab-content">
+            <div class="mitre-legend">
+                <span class="legend-item"><span class="legend-dot active-dot"></span> Active in current incident</span>
+                <span class="legend-item"><span class="legend-dot inactive-dot"></span> Not observed</span>
+            </div>
+            <div class="mitre-matrix-scroll">
+                <div class="mitre-matrix" id="mitre-matrix-grid">
+                    <div class="mitre-loading">Loading MITRE ATT&amp;CK matrix...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attribution Ranking Tab -->
+        <div id="mitre-tab-attribution" class="mitre-tab-content hidden">
+            <div class="attribution-ranking" id="attribution-ranking-list">
+                <div class="mitre-loading">Run a scenario to see attribution scores.</div>
+            </div>
+        </div>
+
+        <!-- Technique Details Tab -->
+        <div id="mitre-tab-techniques" class="mitre-tab-content hidden">
+            <div class="techniques-list" id="techniques-detail-list">
+                <div class="mitre-loading">Loading technique library...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Forensic Cases Database Browser ─────────────────────── -->
+    <section class="cases-section" id="cases-section">
+        <div class="cases-header">
+            <div class="cases-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+                <div>
+                    <h2 class="cases-title">Forensic Case Database</h2>
+                    <p class="cases-subtitle">Persistent investigation records anchored to Supabase — every
+                        reconstruction saved for permanent chain-of-custody.</p>
+                </div>
+            </div>
+            <div class="cases-header-actions">
+                <span id="cases-db-indicator" class="cases-db-indicator">⚪ DB Offline</span>
+                <button class="cases-refresh-btn" onclick="loadCases()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Cases grid -->
+        <div class="cases-grid" id="cases-grid">
+            <div class="cases-empty" id="cases-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                    opacity="0.3">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+                <p>No forensic cases saved yet.</p>
+                <p class="cases-empty-hint">Run <strong>Act 4 → Backward-Walk</strong> then click <strong>Save
+                        Case</strong> to create your first case record.</p>
+                <p class="cases-empty-hint" id="cases-db-hint"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Detailed Forensic Report -->
+    <div id="report-modal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span>Court-Admissible ICS Digital Forensics Report</span>
+                    <span class="modal-badge">Federal Rules of Evidence 902(13/14) Compliant</span>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-print-btn" onclick="openReportInNewTab()">Open Full Report</button>
+                    <button class="modal-close-btn" onclick="closeReportModal()">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <iframe id="report-iframe" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Save Forensic Case -->
+    <div id="save-case-modal" class="modal-overlay hidden">
+        <div class="modal-container save-case-modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    <span>Save Forensic Case to Database</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeSaveCaseModal()">&times;</button>
+            </div>
+            <div class="modal-body save-case-body">
+                <label class="save-case-label" for="case-name-input">Case Name <span
+                        style="opacity:0.5;font-size:11px">(leave blank to auto-generate)</span></label>
+                <input id="case-name-input" class="save-case-input" type="text"
+                    placeholder="e.g. TRITON-HatMan-Incident-2026" />
+                <div id="save-case-result" class="save-case-result hidden"></div>
+                <div class="save-case-actions">
+                    <button class="btn-cancel" onclick="closeSaveCaseModal()">Cancel</button>
+                    <button class="btn-confirm-save" id="btn-confirm-save" onclick="confirmSaveCase()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save to Supabase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: View Forensic Case Detail -->
+    <div id="case-detail-modal" class="modal-overlay hidden">
+        <div class="modal-container case-detail-modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span id="case-detail-title">Case Detail</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeCaseDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body case-detail-body" id="case-detail-body">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+    <script src="wallet.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
