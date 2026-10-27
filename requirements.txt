@@ -1,0 +1,10 @@
+fastapi==0.110.0
+uvicorn==0.28.0
+pydantic==2.6.4
+scikit-learn==1.4.1.post1
+numpy==1.26.4
+supabase==2.3.4
+web3==6.15.1
+python-dotenv==1.0.1
+pytest==8.1.1
+requests==2.31.0
